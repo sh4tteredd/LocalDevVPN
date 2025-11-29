@@ -1,8 +1,8 @@
 {
   "fill" : {
     "linear-gradient" : [
-      "display-p3:0.72718,1.00000,0.56150,1.00000",
-      "display-p3:0.23889,0.54053,0.96826,1.00000"
+      "display-p3:0.72549,1.00000,0.56078,1.00000",
+      "display-p3:0.23922,0.54118,0.96863,1.00000"
     ],
     "orientation" : {
       "start" : {
@@ -17,20 +17,19 @@
   },
   "groups" : [
     {
+      "hidden-specializations" : [
+        {
+          "value" : true
+        },
+        {
+          "appearance" : "tinted",
+          "value" : false
+        }
+      ],
       "layers" : [
         {
-          "blend-mode" : "normal",
-          "hidden" : false,
-          "image-name" : "StosPlug.svg",
-          "name" : "StosPlug",
-          "opacity" : 0.5,
-          "position" : {
-            "scale" : 1,
-            "translation-in-points" : [
-              0,
-              0
-            ]
-          }
+          "image-name" : "StosPlug 3.svg",
+          "name" : "StosPlug 3"
         }
       ],
       "shadow" : {
@@ -46,6 +45,45 @@
           }
         }
       ]
+    },
+    {
+      "hidden-specializations" : [
+        {
+          "value" : false
+        },
+        {
+          "appearance" : "tinted",
+          "value" : true
+        }
+      ],
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.94916,0.94916,0.94916,0.50000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "display-p3:1.00000,1.00000,1.00000,0.50000"
+              }
+            }
+          ],
+          "hidden" : false,
+          "image-name" : "StosPlug 2.svg",
+          "name" : "StosPlug"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
     }
   ],
   "supported-platforms" : {

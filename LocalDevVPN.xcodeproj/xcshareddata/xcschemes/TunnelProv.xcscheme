@@ -19,7 +19,7 @@
                BlueprintIdentifier = "4EB3C76D2D96715400C1B22C"
                BuildableName = "TunnelProv.appex"
                BlueprintName = "TunnelProv"
-               ReferencedContainer = "container:StosVPN.xcodeproj">
+               ReferencedContainer = "container:LocalDevVPN.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -33,7 +33,7 @@
                BlueprintIdentifier = "4EB3C7572D96631A00C1B22C"
                BuildableName = "LocalDevVPN.app"
                BlueprintName = "LocalDevVPN"
-               ReferencedContainer = "container:StosVPN.xcodeproj">
+               ReferencedContainer = "container:LocalDevVPN.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -64,7 +64,7 @@
             BlueprintIdentifier = "4EB3C7572D96631A00C1B22C"
             BuildableName = "LocalDevVPN.app"
             BlueprintName = "LocalDevVPN"
-            ReferencedContainer = "container:StosVPN.xcodeproj">
+            ReferencedContainer = "container:LocalDevVPN.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -74,7 +74,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
-      askForAppToLaunch = "Yes"
       launchAutomaticallySubstyle = "2">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
@@ -83,7 +82,7 @@
             BlueprintIdentifier = "4EB3C7572D96631A00C1B22C"
             BuildableName = "LocalDevVPN.app"
             BlueprintName = "LocalDevVPN"
-            ReferencedContainer = "container:StosVPN.xcodeproj">
+            ReferencedContainer = "container:LocalDevVPN.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

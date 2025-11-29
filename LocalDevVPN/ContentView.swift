@@ -655,8 +655,9 @@ struct ContentView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        Image(systemName: "gear")
-                            .foregroundColor(.primary)
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.secondary)
                     }
                 }
             }
@@ -727,6 +728,7 @@ struct StatusIndicatorView: View {
                 .font(.subheadline)
                 .foregroundColor(tunnelManager.tunnelStatus == .connected ? .green : .secondary)
         }
+        .padding(.horizontal)
     }
 
     private func updateAnimation() {
@@ -757,16 +759,39 @@ struct ConnectionButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack {
-                Text(buttonText)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-
-                if tunnelManager.tunnelStatus == .connecting || tunnelManager.tunnelStatus == .disconnecting {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                        .padding(.leading, 5)
+            if #available(iOS 19.0, *) {
+                HStack(spacing: 8) {
+                    if tunnelManager.tunnelStatus == .connecting || tunnelManager.tunnelStatus == .disconnecting {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    }
+                    
+                    Text(buttonText)
+                        .font(.system(size: 17, weight: .semibold))
                 }
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .glassEffect(.regular.interactive().tint(tunnelManager.tunnelStatus != .connected ? .red : .green), in:  RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .foregroundColor(.white)
+                .shadow(color: tunnelManager.tunnelStatus.color.opacity(0.3), radius: 12, x: 0, y: 6)
+            } else {
+                HStack(spacing: 8) {
+                    if tunnelManager.tunnelStatus == .connecting || tunnelManager.tunnelStatus == .disconnecting {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    }
+                    
+                    Text(buttonText)
+                        .font(.system(size: 17, weight: .semibold))
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(buttonBackground)
+                )
+                .foregroundColor(.white)
+                .shadow(color: tunnelManager.tunnelStatus.color.opacity(0.3), radius: 12, x: 0, y: 6)
             }
             .frame(width: 200, height: 50)
             .background(buttonBackground)
@@ -775,6 +800,7 @@ struct ConnectionButton: View {
             .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         }
         .disabled(tunnelManager.tunnelStatus == .connecting || tunnelManager.tunnelStatus == .disconnecting)
+        .padding(.horizontal, 20)
     }
 
     private var buttonText: String {
@@ -862,16 +888,21 @@ struct ConnectionStatsView: View {
         if hours > 0 {
             return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
         } else {
-            return String(format: "%02d:%02d", minutes, seconds)
+            return LinearGradient(
+                colors: [Color.blue, Color.blue.opacity(0.8)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
         }
     }
 }
 
-struct StatItemView: View {
-    let title: LocalizedStringKey
-    let value: String
+struct InfoCard: View {
     let icon: String
-
+    let title: String
+    let subtitle: String
+    let accentColor: Color
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -879,15 +910,24 @@ struct StatItemView: View {
                     .foregroundColor(.blue)
 
                 Text(title)
-                    .font(.caption)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Text(subtitle)
+                    .font(.system(size: 13, weight: .regular))
                     .foregroundColor(.secondary)
+                    .lineLimit(2)
             }
 
             Text(value)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.primary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+        )
     }
 }
 
@@ -1151,10 +1191,18 @@ struct HelpView: View {
                 }
             }
             Section(header: Text("app_info_header")) {
-                HStack {
-                    Image(systemName: "exclamationmark.shield")
-                    Text("requires_ios")
+                if let minVersion = Bundle.main.infoDictionary?["MinimumOSVersion"] as? String {
+                    let message = String(
+                        format: NSLocalizedString("requires_ios", comment: ""),
+                        minVersion
+                    )
+                    HStack {
+                        Image(systemName: "exclamationmark.shield")
+                        Text(message)
+                    }
                 }
+
+
                 HStack {
                     Image(systemName: "lock.shield")
                     Text("uses_network_extension")
