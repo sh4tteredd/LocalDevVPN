@@ -26,6 +26,20 @@ struct StartLocalDevVPNIntent: AppIntent {
 }
 
 @available(iOS 16.0, *)
+struct StopLocalDevVPNIntent: AppIntent {
+    static var title: LocalizedStringResource = "Stop LocalDevVPN"
+    static var description = IntentDescription("Disconnects LocalDevVPN without launching the app.")
+
+    static var openAppWhenRun = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        TunnelManager.shared.stopVPN()
+        return .result()
+    }
+}
+
+@available(iOS 16.0, *)
 struct LocalDevVPNActions: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -37,6 +51,16 @@ struct LocalDevVPNActions: AppShortcutsProvider {
             ],
             shortTitle: "Start VPN",
             systemImageName: "lock.shield"
+        )
+        AppShortcut(
+            intent: StopLocalDevVPNIntent(),
+            phrases: [
+                "Stop \(.applicationName)",
+                "Disconnect \(.applicationName)",
+                "Disable \(.applicationName)"
+            ],
+            shortTitle: "Stop VPN",
+            systemImageName: "lock.shield.slash"
         )
     }
 }
