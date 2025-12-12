@@ -11,8 +11,9 @@
 "local_tunnel_active" = "Local Tunnel Active";
 "local_tunnel_inactive" = "Local Tunnel Inactive";
 
-"connected_to_10.7.0.1" = "Connected to 10.7.0.1";
-"macos_might_ask_you_to_approve_the_vpn" = "macOS might ask you to approve the VPN";
+"connected_to_ip" = "Connected to %@";
+"connected_at" = "Connected at";
+"ios_might_ask_you_to_allow_the_vpn" = "iOS might ask you to allow the VPN";
 "disconnecting_safely" = "Disconnecting safely…";
 "open_settings_to_review_details" = "Open Settings to review details";
 "tap_connect_to_create_the_tunnel" = "Tap connect to create the tunnel";

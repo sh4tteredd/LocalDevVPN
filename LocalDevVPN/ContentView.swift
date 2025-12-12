@@ -685,12 +685,13 @@ struct ContentView: View {
 
     var body: some View {
         NBNavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
+            ScrollView {
+                VStack(spacing: 16) {
+                    TitleWithSettingsRow(showSettings: $showSettings)
+
                     StatusOverviewCard()
 
                     ConnectivityControlsCard(
-                        autoConnect: $autoConnect,
                         action: {
                             tunnelManager.tunnelStatus == .connected ? tunnelManager.stopVPN() : tunnelManager.startVPN()
                         }
@@ -701,24 +702,16 @@ struct ContentView: View {
                     }
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 24)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .top)
             }
+            .applyAdaptiveBounce()
             .background(backgroundColor.ignoresSafeArea())
-            .navigationTitle("LocalDevVPN")
+            .navigationTitle("")
             #if os(iOS)
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.inline)
             #endif
             .tvOSNavigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gear")
-                            .foregroundColor(.primary)
-                    }
-                }
-            }
             .onChange(of: tunnelManager.waitingOnSettings) { finished in
                 if tunnelManager.tunnelStatus != .connected && autoConnect && finished {
                     tunnelManager.startVPN()
@@ -742,6 +735,31 @@ struct ContentView: View {
     }
 }
 
+struct TitleWithSettingsRow: View {
+    @Binding var showSettings: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Text("LocalDevVPN")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .accessibilityAddTraits(.isHeader)
+
+            Spacer()
+
+            Button {
+                showSettings = true
+            } label: {
+                Image(systemName: "gear")
+                    .font(.title2.weight(.semibold))
+                    .foregroundColor(.primary)
+            }
+            .accessibilityLabel(Text("settings"))
+        }
+        .padding(.top, 4)
+    }
+}
+
 extension View {
     @ViewBuilder
     func tvOSNavigationBarTitleDisplayMode(_ displayMode: NavigationBarItem.TitleDisplayMode) -> some View {
@@ -751,10 +769,20 @@ extension View {
             self
         #endif
     }
+
+    @ViewBuilder
+    func applyAdaptiveBounce() -> some View {
+        if #available(iOS 16.4, tvOS 16.4, *) {
+            scrollBounceBehavior(.basedOnSize)
+        } else {
+            self
+        }
+    }
 }
 
 struct StatusOverviewCard: View {
     @StateObject private var tunnelManager = TunnelManager.shared
+    @AppStorage("TunnelDeviceIP") private var deviceIP = "10.7.0.0"
 
     var body: some View {
         DashboardCard {
@@ -785,9 +813,12 @@ struct StatusOverviewCard: View {
 
                     Spacer()
 
-                    Text(Date(), style: .time)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    HStack(spacing: 4) {
+                        Text("connected_at")
+                        Text(Date(), style: .time)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 }
             }
         }
@@ -796,9 +827,9 @@ struct StatusOverviewCard: View {
     private var statusTip: String {
         switch tunnelManager.tunnelStatus {
         case .connected:
-            return NSLocalizedString("connected_to_10.7.0.1", comment: "")
+            return String(format: NSLocalizedString("connected_to_ip", comment: ""), deviceIP)
         case .connecting:
-            return NSLocalizedString("macos_might_ask_you_to_approve_the_vpn", comment: "")
+            return NSLocalizedString("ios_might_ask_you_to_allow_the_vpn", comment: "")
         case .disconnecting:
             return NSLocalizedString("disconnecting_safely", comment: "")
         case .error:
@@ -812,13 +843,13 @@ struct StatusOverviewCard: View {
 struct StatusGlyphView: View {
     @StateObject private var tunnelManager = TunnelManager.shared
     @State private var ringScale: CGFloat = 1.0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
             Circle()
                 .stroke(tunnelManager.tunnelStatus.color.opacity(0.25), lineWidth: 6)
-                .scaleEffect(reduceMotion ? 1 : ringScale, anchor: .center)
+                .scaleEffect(ringScale, anchor: .center)
+                .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: ringScale)
 
             Circle()
                 .fill(tunnelManager.tunnelStatus.color.opacity(0.15))
@@ -828,30 +859,17 @@ struct StatusGlyphView: View {
                 .foregroundColor(tunnelManager.tunnelStatus.color)
         }
         .frame(width: 92, height: 92)
-        .onAppear(perform: restartPulse)
-        .onChange(of: tunnelManager.tunnelStatus) { _ in
-            restartPulse()
-        }
-        .onChange(of: reduceMotion) { _ in
-            restartPulse()
-        }
+        .onAppear(perform: startPulse)
     }
 
-    private func restartPulse() {
-        guard !reduceMotion else {
-            ringScale = 1
-            return
-        }
-
-        ringScale = 1.0
-        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+    private func startPulse() {
+        DispatchQueue.main.async {
             ringScale = 1.08
         }
     }
 }
 
 struct ConnectivityControlsCard: View {
-    @Binding var autoConnect: Bool
     let action: () -> Void
 
     var body: some View {
@@ -866,24 +884,13 @@ struct ConnectivityControlsCard: View {
                 }
 
                 ConnectionButton(action: action)
-
-                Toggle(isOn: $autoConnect) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("auto-connect_on_launch")
-                            .fontWeight(.semibold)
-                        Text("resume_your_last_state_automatically")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .toggleStyle(SwitchToggleStyle(tint: .accentColor))
             }
         }
     }
 }
 
 struct ConnectionInfoRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
     let icon: String
 
@@ -972,34 +979,19 @@ struct ConnectionButton: View {
 
 struct ConnectionStatsView: View {
     @StateObject private var tunnelManager = TunnelManager.shared
-    @State private var time = 0
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @AppStorage("TunnelDeviceIP") private var deviceIP = "10.7.0.0"
     @AppStorage("TunnelFakeIP") private var fakeIP = "10.7.0.1"
     @AppStorage("TunnelSubnetMask") private var subnetMask = "255.255.255.0"
 
     var body: some View {
         DashboardCard {
-            VStack(alignment: .leading, spacing: 18) {
-                VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text("session_details")
                         .font(.headline)
                     Text("live_stats_while_the_tunnel_is_connected")
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                }
-
-                HStack(spacing: 16) {
-                    StatItemView(
-                        title: "time_connected",
-                        value: formattedTime,
-                        icon: "clock.fill"
-                    )
-                    StatItemView(
-                        title: "status",
-                        value: statusValue,
-                        icon: tunnelManager.tunnelStatus.systemImage
-                    )
                 }
 
                 Divider()
@@ -1027,36 +1019,8 @@ struct ConnectionStatsView: View {
                 )
             }
         }
-        .onReceive(timer) { _ in
-            time += 1
-        }
     }
 
-    var formattedTime: String {
-        let minutes = (time / 60) % 60
-        let hours = time / 3600
-        let seconds = time % 60
-
-        if hours > 0 {
-            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            return String(format: "%02d:%02d", minutes, seconds)
-        }
-    }
-    private var statusValue: String {
-        switch tunnelManager.tunnelStatus {
-        case .connected:
-            return NSLocalizedString("Active", comment: "")
-        case .connecting:
-            return NSLocalizedString("Connecting", comment: "")
-        case .disconnecting:
-            return NSLocalizedString("Disconnecting", comment: "")
-        case .error:
-            return NSLocalizedString("Error", comment: "")
-        default:
-            return NSLocalizedString("Idle", comment: "")
-        }
-    }
 }
 
 struct StatItemView: View {
