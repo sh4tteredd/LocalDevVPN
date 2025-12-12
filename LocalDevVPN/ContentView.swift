@@ -811,14 +811,14 @@ struct StatusOverviewCard: View {
 
 struct StatusGlyphView: View {
     @StateObject private var tunnelManager = TunnelManager.shared
-    @State private var animate = false
+    @State private var ringScale: CGFloat = 1.0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
             Circle()
                 .stroke(tunnelManager.tunnelStatus.color.opacity(0.25), lineWidth: 6)
-                .scaleEffect(animate ? 1.05 : 0.95)
-                .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: animate)
+                .scaleEffect(reduceMotion ? 1 : ringScale, anchor: .center)
 
             Circle()
                 .fill(tunnelManager.tunnelStatus.color.opacity(0.15))
@@ -828,14 +828,24 @@ struct StatusGlyphView: View {
                 .foregroundColor(tunnelManager.tunnelStatus.color)
         }
         .frame(width: 92, height: 92)
-        .onAppear {
-            animate = true
-        }
+        .onAppear(perform: restartPulse)
         .onChange(of: tunnelManager.tunnelStatus) { _ in
-            animate.toggle()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                animate = true
-            }
+            restartPulse()
+        }
+        .onChange(of: reduceMotion) { _ in
+            restartPulse()
+        }
+    }
+
+    private func restartPulse() {
+        guard !reduceMotion else {
+            ringScale = 1
+            return
+        }
+
+        ringScale = 1.0
+        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+            ringScale = 1.08
         }
     }
 }
