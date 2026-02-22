@@ -201,8 +201,6 @@
 				it,
 				pl,
 				ko,
-				"zh-Hant",
-				fr,
 			);
 			mainGroup = 4EB3C74F2D96631A00C1B22C;
 			minimizedProjectReferenceProxies = 1;
@@ -420,7 +418,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"LocalDevVPN/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 42Q7QX86GV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = LocalDevVPN;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
@@ -436,7 +434,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.5;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lolo.LocalDevVPN;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jkcoxson.LocalDevVPN;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -458,7 +456,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"LocalDevVPN/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 42Q7QX86GV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = LocalDevVPN;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
@@ -474,7 +472,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.5;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lolo.LocalDevVPN;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jkcoxson.LocalDevVPN;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -488,7 +486,7 @@
 		4EB3C77C2D96715400C1B22C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 42Q7QX86GV;
 				INFOPLIST_KEY_CFBundleDisplayName = TunnelProv;
 				INFOPLIST_KEY_NSHumanReadableCopyright = Stossy11;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
@@ -514,7 +512,7 @@
 		4EB3C77D2D96715400C1B22C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 42Q7QX86GV;
 				INFOPLIST_KEY_CFBundleDisplayName = TunnelProv;
 				INFOPLIST_KEY_NSHumanReadableCopyright = Stossy11;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
