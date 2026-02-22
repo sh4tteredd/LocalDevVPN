@@ -57,6 +57,7 @@
 "auto_connect_on_launch" = "Auto Connect on Launch";
 "connection_logs" = "Connection Logs";
 "network_configuration" = "Network Configuration";
+"match_wifi_subnet" = "Match WiFi Subnet";
 "device_ip" = "Device IP";
 "tunnel_ip" = "Tunnel IP";
 "subnet_mask" = "Subnet Mask";

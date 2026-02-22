@@ -66,7 +66,11 @@ class TunnelManager: ObservableObject {
     private var tunnelSubnetMask: String {
         UserDefaults.standard.string(forKey: "TunnelSubnetMask") ?? "255.255.255.0"
     }
-
+    
+    private var useWiFiSubnet: Bool {
+        UserDefaults.standard.bool(forKey: "useWiFiSubnet")
+    }
+    
     private var tunnelBundleId: String {
         Bundle.main.bundleIdentifier!.appending(".TunnelProv")
     }
@@ -503,6 +507,7 @@ class TunnelManager: ObservableObject {
                     "TunnelDeviceIP": self.tunnelDeviceIp as NSObject,
                     "TunnelFakeIP": self.tunnelFakeIp as NSObject,
                     "TunnelSubnetMask": self.tunnelSubnetMask as NSObject,
+                    "UseWiFiSubnet": self.useWiFiSubnet as NSObject,
                 ]
 
                 do {
@@ -1087,6 +1092,7 @@ struct SettingsView: View {
     @AppStorage("TunnelDeviceIP") private var deviceIP = "10.7.0.0"
     @AppStorage("TunnelFakeIP") private var fakeIP = "10.7.0.1"
     @AppStorage("TunnelSubnetMask") private var subnetMask = "255.255.255.0"
+    @AppStorage("useWiFiSubnet") private var useWiFiSubnet = false
     @AppStorage("autoConnect") private var autoConnect = false
     @AppStorage("shownTunnelAlert") private var shownTunnelAlert = false
     @StateObject private var tunnelManager = TunnelManager.shared
@@ -1106,10 +1112,14 @@ struct SettingsView: View {
                 }
 
                 Section(header: Text("network_configuration")) {
-                    Group {
-                        networkConfigRow(label: "tunnel_ip", text: $deviceIP)
-                        networkConfigRow(label: "device_ip", text: $fakeIP)
-                        networkConfigRow(label: "subnet_mask", text: $subnetMask)
+                    Toggle("match_wifi_subnet", isOn: $useWiFiSubnet)
+                    
+                    if !useWiFiSubnet {
+                        Group {
+                            networkConfigRow(label: "tunnel_ip", text: $deviceIP)
+                            networkConfigRow(label: "device_ip", text: $fakeIP)
+                            networkConfigRow(label: "subnet_mask", text: $subnetMask)
+                        }
                     }
                 }
 
