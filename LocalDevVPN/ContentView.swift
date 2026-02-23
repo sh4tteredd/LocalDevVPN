@@ -953,6 +953,22 @@ struct ConnectionInfoRow: View {
     let title: LocalizedStringKey
     let value: String
     let icon: String
+    let role: LocalizedStringKey?
+    let roleTint: Color
+
+    init(
+        title: LocalizedStringKey,
+        value: String,
+        icon: String,
+        role: LocalizedStringKey? = nil,
+        roleTint: Color = .accentColor
+    ) {
+        self.title = title
+        self.value = value
+        self.icon = icon
+        self.role = role
+        self.roleTint = roleTint
+    }    
 
     var body: some View {
         HStack(spacing: 12) {
@@ -961,9 +977,22 @@ struct ConnectionInfoRow: View {
                 .foregroundColor(.accentColor)
                 .frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    if let role {
+                        Text(role)
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(roleTint)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(roleTint.opacity(0.14))
+                            .clipShape(Capsule())
+                    }
+                }
                 Text(value)
                     .font(.body)
                     .foregroundColor(.primary)
@@ -1074,13 +1103,17 @@ struct ConnectionStatsView: View {
                 ConnectionInfoRow(
                     title: "local_device_ip",
                     value: displayedNetworkInfo.deviceIP,
-                    icon: "desktopcomputer"
+                    icon: "wifi",
+                    role: "local",
+                    roleTint: .green
                 )
 
                 ConnectionInfoRow(
                     title: "tunnel_ip",
                     value: displayedNetworkInfo.deviceIP,
-                    icon: "point.3.filled.connected.trianglepath.dotted"
+                    icon: "point.3.filled.connected.trianglepath.dotted",
+                    role: "assigned_ip",
+                    roleTint: .blue
                 )
 
                 ConnectionInfoRow(
@@ -1182,8 +1215,8 @@ struct SettingsView: View {
                     
                     if !useWiFiSubnet {
                         Group {
-                            networkConfigRow(label: "tunnel_ip", text: $deviceIP)
-                            networkConfigRow(label: "device_ip", text: $fakeIP)
+                            networkConfigRow(label: "device_ip", text: $deviceIP)
+                            networkConfigRow(label: "tunnel_ip", text: $fakeIP)
                             networkConfigRow(label: "subnet_mask", text: $subnetMask)
                         }
                     }
