@@ -8,6 +8,7 @@
 import Foundation
 import NetworkExtension
 import SwiftUI
+import Darwin
 
 import NavigationBackport
 
@@ -32,6 +33,60 @@ class VPNLogger: ObservableObject {
         #endif
 
         logs.append("\(message)")
+    }
+}
+
+private enum WiFiSubnetResolver {
+    static func currentNetworkInfo() -> (ipAddress: String, subnetMask: String)? {
+        var address: String?
+        var subnetMask: String?
+
+        var ifaddr: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&ifaddr) == 0 else { return nil }
+        defer {
+            if let ifaddr {
+                freeifaddrs(ifaddr)
+            }
+        }
+        guard let firstAddr = ifaddr else { return nil }
+
+        for ifptr in sequence(first: firstAddr, next: { $0.pointee.ifa_next }) {
+            let interface = ifptr.pointee
+            guard let interfaceAddress = interface.ifa_addr,
+                  interfaceAddress.pointee.sa_family == UInt8(AF_INET) else {
+                continue
+            }
+
+            let name = String(cString: interface.ifa_name)
+            guard name == "en0" else { continue }
+
+            var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+            getnameinfo(interfaceAddress, socklen_t(interfaceAddress.pointee.sa_len),
+                        &host, socklen_t(host.count), nil, socklen_t(0), NI_NUMERICHOST)
+            address = String(cString: host)
+
+            if let interfaceNetmask = interface.ifa_netmask {
+                var netmaskHost = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                getnameinfo(interfaceNetmask, socklen_t(interfaceNetmask.pointee.sa_len),
+                            &netmaskHost, socklen_t(netmaskHost.count), nil, socklen_t(0), NI_NUMERICHOST)
+                subnetMask = String(cString: netmaskHost)
+            }
+
+            break
+        }
+
+        guard let address, let subnetMask else { return nil }
+        return (address, subnetMask)
+    }
+
+    static func fakeIP(for ipAddress: String) -> String? {
+        let parts = ipAddress.split(separator: ".")
+        guard parts.count == 4,
+              let lastOctet = Int(parts[3]) else {
+            return nil
+        }
+
+        return "\(parts[0]).\(parts[1]).\(parts[2]).\(lastOctet + 1)"
     }
 }
 
@@ -987,6 +1042,17 @@ struct ConnectionStatsView: View {
     @AppStorage("TunnelDeviceIP") private var deviceIP = "10.7.0.0"
     @AppStorage("TunnelFakeIP") private var fakeIP = "10.7.0.1"
     @AppStorage("TunnelSubnetMask") private var subnetMask = "255.255.255.0"
+    @AppStorage("useWiFiSubnet") private var useWiFiSubnet = false
+
+    private var displayedNetworkInfo: (deviceIP: String, fakeIP: String, subnetMask: String) {
+        guard useWiFiSubnet,
+              let wifiInfo = WiFiSubnetResolver.currentNetworkInfo() else {
+            return (deviceIP, fakeIP, subnetMask)
+        }
+
+        let resolvedFakeIP = WiFiSubnetResolver.fakeIP(for: wifiInfo.ipAddress) ?? fakeIP
+        return (wifiInfo.ipAddress, resolvedFakeIP, wifiInfo.subnetMask)
+    }
 
     var body: some View {
         DashboardCard {
@@ -1007,19 +1073,19 @@ struct ConnectionStatsView: View {
 
                 ConnectionInfoRow(
                     title: "local_device_ip",
-                    value: deviceIP,
+                    value: displayedNetworkInfo.deviceIP,
                     icon: "desktopcomputer"
                 )
 
                 ConnectionInfoRow(
                     title: "tunnel_ip",
-                    value: fakeIP,
+                    value: displayedNetworkInfo.deviceIP,
                     icon: "point.3.filled.connected.trianglepath.dotted"
                 )
 
                 ConnectionInfoRow(
                     title: "subnet_mask",
-                    value: subnetMask,
+                    value: displayedNetworkInfo.subnetMask,
                     icon: "network"
                 )
             }
