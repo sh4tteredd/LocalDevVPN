@@ -788,6 +788,14 @@ extension View {
 struct StatusOverviewCard: View {
     @StateObject private var tunnelManager = TunnelManager.shared
     @AppStorage("TunnelDeviceIP") private var deviceIP = "10.7.0.0"
+    @AppStorage("useWiFiSubnet") private var useWiFiSubnet = false
+    
+    private var currentIP: String {
+        if useWiFiSubnet, let wifiIP = getCurrentWiFiIP() {
+            return wifiIP
+        }
+        return deviceIP
+    }
 
     var body: some View {
         DashboardCard {
@@ -832,7 +840,7 @@ struct StatusOverviewCard: View {
     private var statusTip: String {
         switch tunnelManager.tunnelStatus {
         case .connected:
-            return String(format: NSLocalizedString("connected_to_ip", comment: ""), deviceIP)
+            return String(format: NSLocalizedString("connected_to_ip", comment: ""), currentIP)
         case .connecting:
             return NSLocalizedString("ios_might_ask_you_to_allow_the_vpn", comment: "")
         case .disconnecting:
